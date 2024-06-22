@@ -3,7 +3,7 @@
 ## Описание
 Проект Todo List разработан в рамках задания 1 фазы Ada Lovelace на Yandex School ШМР. Приложение представляет собой список задач с основными функциями добавления, редактирования и удаления задач.
 
-(app_icon.png)
+![Иконка приложения](app_icon.png)
 
 ## Ссылка на загрузку APK
 [Ссылка на загрузку APK](https://drive.google.com/drive/folders/1hYPP6himZ4ATtqFptFuLJqauGp4bg3lD?usp=sharing)
