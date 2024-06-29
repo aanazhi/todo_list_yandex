@@ -12,6 +12,10 @@
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<key>NSCameraUsageDescription</key>
+	<string>We need access to the camera to take pictures</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>We need access to the microphone to record audio</string>
 	<key>CFBundleName</key>
 	<string>todo_list_yandex</string>
 	<key>CFBundlePackageType</key>

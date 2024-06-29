@@ -19,6 +19,7 @@ class HomeScreen extends ConsumerWidget {
     final tasks = ref.watch(tasksProvider);
 
     return Scaffold(
+      backgroundColor: colors.onPrimary,
       body: Column(
         children: [
           Stack(
@@ -26,7 +27,7 @@ class HomeScreen extends ConsumerWidget {
               Container(
                 width: deviceSize.width,
                 height: deviceSize.height * 0.25,
-                color: colors.background,
+                color: colors.surface,
                 child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.end,
@@ -41,7 +42,7 @@ class HomeScreen extends ConsumerWidget {
                           Padding(
                             padding: const EdgeInsets.only(left: 40),
                             child: Text(
-                              'Выполнено - ${tasks.where((task) => task.isCompleted).length}',
+                              'Выполнено - ${tasks.where((task) => task.done).length}',
                               style: textStyle.bodySmall,
                             ),
                           ),
@@ -51,7 +52,7 @@ class HomeScreen extends ConsumerWidget {
                             child: IconButton(
                               onPressed: () {
                                 logger.d(
-                                    'Button pressed - Toggling task visibility');
+                                    'Нажата кнопка - переключение видимости задачи');
                                 ref
                                     .read(taskVisibilityProvider.notifier)
                                     .state = !isVisible;

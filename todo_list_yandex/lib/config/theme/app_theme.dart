@@ -5,6 +5,7 @@ class AppTheme {
   const AppTheme._();
 
   static final light = ThemeData(
+    useMaterial3: false,
     brightness: Brightness.light,
     primaryColor: AppColors.labelLightPrimary,
     scaffoldBackgroundColor: AppColors.backLightSecondary,
@@ -41,14 +42,12 @@ class AppTheme {
       primary: AppColors.colorLightBlue,
       secondary: AppColors.colorLightGreen,
       error: AppColors.colorLightRed,
-      background: AppColors.backLightPrimary,
+      onPrimary: AppColors.backLightPrimary,
       surface: AppColors.backLightSecondary,
-      onPrimary: AppColors.colorLightWhite,
       onSecondary: AppColors.colorLightGray,
-      onError: AppColors.colorLightWhite,
-      onBackground: AppColors.supportLightSeparator,
+      onError: AppColors.supportLightSeparator,
       onSurface: AppColors.labelLightPrimary,
-    ).copyWith(background: AppColors.backLightPrimary),
+    ).copyWith(onPrimary: AppColors.backLightPrimary),
   );
 }
 
