@@ -13,7 +13,7 @@ class AddTaskButtonNew extends StatelessWidget {
       padding: const EdgeInsets.only(right: 250.0),
       child: TextButton(
         onPressed: () {
-          logger.d('Button pressed - Navigating to AddEditTaskScreen');
+          logger.d('Нажата кнопка - переход к экрану добавления и редактирования задачи');
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const AddEditTaskScreen()),

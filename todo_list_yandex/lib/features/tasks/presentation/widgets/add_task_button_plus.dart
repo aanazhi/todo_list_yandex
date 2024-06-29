@@ -20,9 +20,10 @@ class AddTaskButtonPlus extends ConsumerWidget {
       child: FloatingActionButton(
         backgroundColor: colors.primary,
         onPressed: () async {
-          logger.d('Clearing task state before navigating to AddEditTaskScreen');
+          logger
+              .d('Очистка состояния задачи перед переходом к экрану добавления и редактирования задачи');
           ref.read(taskNameProvider.notifier).state = '';
-          ref.read(importanceProvider.notifier).state = 'Нет';
+          ref.read(importanceProvider.notifier).state = 'basic';
           ref.read(dueDateProvider.notifier).state = null;
           ref.read(isDueDateEnabledProvider.notifier).state = false;
           final result = await Navigator.push(

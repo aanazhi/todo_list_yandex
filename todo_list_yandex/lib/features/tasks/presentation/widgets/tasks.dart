@@ -1,23 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive/hive.dart';
+import 'package:todo_list_yandex/features/tasks/data/models/task_model.dart';
 import 'package:todo_list_yandex/features/tasks/data/providers/tasks_provider.dart';
 import 'package:todo_list_yandex/features/tasks/presentation/widgets/add_task_button_new.dart';
 import 'package:todo_list_yandex/features/tasks/presentation/widgets/tasks_card.dart';
 import 'package:todo_list_yandex/logger/logger.dart';
 import 'package:todo_list_yandex/utils/utils.dart';
 
-class Tasks extends ConsumerWidget {
+class Tasks extends ConsumerStatefulWidget {
   const Tasks({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  TasksState createState() => TasksState();
+}
+
+class TasksState extends ConsumerState<Tasks> {
+  late Future<Box<Task>> boxFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    boxFuture = Hive.openBox<Task>('taskBox');
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final colors = context.colorScheme;
 
     final isVisible = ref.watch(taskVisibilityProvider);
     final tasks = ref.watch(tasksProvider);
 
     final filteredTasks =
-        isVisible ? tasks : tasks.where((task) => !task.isCompleted).toList();
+        isVisible ? tasks : tasks.where((task) => !task.done).toList();
 
     return Column(
       children: [
@@ -37,9 +52,7 @@ class Tasks extends ConsumerWidget {
                 background: Stack(
                   children: [
                     Container(
-                      color: task.isCompleted
-                          ? colors.onSecondary
-                          : colors.secondary,
+                      color: task.done ? colors.onSecondary : colors.secondary,
                     ),
                     Align(
                       alignment: Alignment.centerLeft,
@@ -70,49 +83,43 @@ class Tasks extends ConsumerWidget {
                     ),
                   ],
                 ),
-                onDismissed: (direction) {
-                  logger.d('Swipe direction: $direction');
+                onDismissed: (direction) async {
+                  logger.d('Направление свайпа: $direction');
                   if (direction == DismissDirection.startToEnd) {
-                    ref
+                    final updatedTask = task.copyWith(done: true);
+                    await ref
                         .read(tasksProvider.notifier)
-                        .toggleTaskCompletion(task.id);
+                        .updateTask(updatedTask);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                           backgroundColor: colors.secondary,
                           content: Text(
-                            '${task.title} выполнена',
+                            '${task.text} выполнена',
                             style: TextStyle(color: colors.surface),
                           )),
                     );
                   } else if (direction == DismissDirection.endToStart) {
-                    ref.read(tasksProvider.notifier).removeTask(task);
+                    ref.read(tasksProvider.notifier).deleteTask(task);
+                    final box = await boxFuture;
+                    await box.delete(task.id);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                           backgroundColor: colors.error,
                           content: Text(
-                            '${task.title} удалена',
+                            '${task.text} удалена',
                             style: TextStyle(color: colors.surface),
                           )),
                     );
-                    logger.d('The task ${task.title} delete');
+                    logger.d('Задача ${task.text} удалена');
                   }
                 },
                 confirmDismiss: (direction) async {
-                  logger.d('Swipe direction: $direction');
+                  logger.d('Направление свайпа: $direction');
                   if (direction == DismissDirection.startToEnd) {
-                    if (task.isCompleted) {
-                      logger.d(
-                          'The result of the swipe confirmation: ${task.isCompleted}');
-                      return false;
-                    }
-                    return true;
+                    return !task.done;
                   } else if (direction == DismissDirection.endToStart) {
-                    logger.d(
-                        'The result of the swipe confirmation: ${task.isCompleted}');
                     return true;
                   }
-                  logger.d(
-                      'The result of the swipe confirmation: ${task.isCompleted}');
                   return false;
                 },
                 child: TaskCard(

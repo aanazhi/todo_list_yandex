@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:todo_list_yandex/config/theme/app_theme.dart';
+import 'package:todo_list_yandex/features/tasks/data/models/task_model.dart';
 import 'package:todo_list_yandex/features/tasks/presentation/screens/home_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Hive.initFlutter();
+  Hive.registerAdapter(TaskAdapter());
+
   runApp(const ProviderScope(child: TodoApp()));
 }
 
