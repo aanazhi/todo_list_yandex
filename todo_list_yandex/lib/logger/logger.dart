@@ -1,3 +1,17 @@
 import 'package:logger/logger.dart';
 
-final Logger logger = Logger();
+class TaskLogger {
+  final Logger logger = Logger();
+
+  void logInfo(String message) {
+    logger.i(message);
+  }
+
+  void logError(String message) {
+    logger.e(message);
+  }
+
+  void logDebug(String message) {
+    logger.d(message);
+  }
+}

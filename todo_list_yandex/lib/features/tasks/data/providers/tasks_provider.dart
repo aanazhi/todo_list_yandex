@@ -21,8 +21,10 @@ final tasksServiceProvider = Provider<TasksService>((ref) {
   return TasksService(dio: ref.watch(dioProvider));
 });
 
-final tasksProvider = StateNotifierProvider<TasksNotifier, List<Task>>((ref) {
-  return TasksNotifier(ref.watch(tasksServiceProvider));
+final tasksProvider =
+    StateNotifierProvider<TasksNotifier, AsyncValue<List<Task>>>((ref) {
+  final tasksService = ref.watch(tasksServiceProvider);
+  return TasksNotifier(tasksService);
 });
 
 final taskNameProvider = StateProvider<String>((ref) => '');

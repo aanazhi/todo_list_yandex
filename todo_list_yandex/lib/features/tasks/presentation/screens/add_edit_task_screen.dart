@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
-import 'package:todo_list_yandex/features/tasks/data/device/device_id.dart';
+import 'package:todo_list_yandex/generated/l10n.dart';
+
+import 'package:todo_list_yandex/utils/device/device_id.dart';
 import 'package:todo_list_yandex/features/tasks/data/models/task_model.dart';
 import 'package:todo_list_yandex/features/tasks/data/providers/tasks_provider.dart';
 import 'package:todo_list_yandex/features/tasks/presentation/widgets/task_name_input.dart';
@@ -25,10 +27,10 @@ class AddEditTaskScreenState extends ConsumerState<AddEditTaskScreen> {
   @override
   void initState() {
     super.initState();
-    logger.d('Initializing state');
+    TaskLogger().logDebug('Initializing state');
     final task = widget.task;
 
-    boxFuture = Hive.openBox<Task>('taskBox');
+    boxFuture = Hive.openBox<Task>('my_tasks_box1');
 
     if (task != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -46,7 +48,7 @@ class AddEditTaskScreenState extends ConsumerState<AddEditTaskScreen> {
 
   @override
   void dispose() {
-    logger.d('Disposing state');
+    TaskLogger().logDebug('Disposing state');
     taskNameController.dispose();
     super.dispose();
   }
@@ -74,7 +76,8 @@ class AddEditTaskScreenState extends ConsumerState<AddEditTaskScreen> {
         actions: [
           TextButton(
             onPressed: () async {
-              logger.d('Нажата кнопка - добавление или обновление задачи');
+              TaskLogger()
+                  .logDebug('Нажата кнопка - добавление или обновление задачи');
 
               final deviceId = await getDeviceId();
 
@@ -89,9 +92,13 @@ class AddEditTaskScreenState extends ConsumerState<AddEditTaskScreen> {
                 lastUpdatedBy: deviceId,
               );
 
-              final box = await boxFuture;
-              await box.put(newTask.id, newTask);
-              logger.d('Значения бокса ${box.values.toList()}');
+              try {
+                final box = await boxFuture;
+                await box.put(newTask.id, newTask);
+                TaskLogger().logDebug('box.values - ${box.values}');
+              } catch (e) {
+                TaskLogger().logDebug('Ошибка при сохранении задачи в Hive $e');
+              }
 
               if (widget.task != null) {
                 ref.read(tasksProvider.notifier).updateTask(newTask);
@@ -101,7 +108,7 @@ class AddEditTaskScreenState extends ConsumerState<AddEditTaskScreen> {
 
               Navigator.pop(context);
             },
-            child: const Text('СОХРАНИТЬ'),
+            child: Text(S.of(context).save),
           ),
         ],
       ),
@@ -127,9 +134,9 @@ class AddEditTaskScreenState extends ConsumerState<AddEditTaskScreen> {
                       border: const OutlineInputBorder(),
                     ),
                     items: [
-                      {'display': 'Нет', 'value': 'basic'},
-                      {'display': 'Низкий', 'value': 'low'},
-                      {'display': '!! Высокий', 'value': 'important'}
+                      {'display': S.of(context).no, 'value': 'basic'},
+                      {'display': S.of(context).low, 'value': 'low'},
+                      {'display': S.of(context).high, 'value': 'important'}
                     ].map((importanceItem) {
                       return DropdownMenuItem<String>(
                         value: importanceItem['value'],
@@ -158,7 +165,7 @@ class AddEditTaskScreenState extends ConsumerState<AddEditTaskScreen> {
                   children: [
                     SwitchListTile(
                       title: Text(
-                        'Сделать до',
+                        S.of(context).due_date,
                         style: textStyle.bodyMedium,
                       ),
                       value: isDueDateEnabled,
@@ -177,7 +184,7 @@ class AddEditTaskScreenState extends ConsumerState<AddEditTaskScreen> {
                       ListTile(
                         title: Text(
                           deadline == null
-                              ? 'Выберите дату'
+                              ? S.of(context).choose_date
                               : DateFormat('dd MMMM').format(deadline),
                           style: textStyle.bodyMedium?.copyWith(),
                         ),
@@ -186,7 +193,7 @@ class AddEditTaskScreenState extends ConsumerState<AddEditTaskScreen> {
                           color: colors.onSecondary,
                         ),
                         onTap: () async {
-                          logger.d('Выбор даты нажат');
+                          TaskLogger().logDebug('Выбор даты нажат');
                           final DateTime? pickedDate = await showDatePicker(
                             context: context,
                             initialDate: DateTime.now(),
@@ -210,7 +217,8 @@ class AddEditTaskScreenState extends ConsumerState<AddEditTaskScreen> {
                   children: [
                     TextButton.icon(
                       onPressed: () async {
-                        logger.d('Нажата кнопка - удаление задачи');
+                        TaskLogger()
+                            .logDebug('Нажата кнопка - удаление задачи');
                         ref
                             .read(tasksProvider.notifier)
                             .deleteTask(widget.task!);
@@ -218,7 +226,8 @@ class AddEditTaskScreenState extends ConsumerState<AddEditTaskScreen> {
                         final box = await boxFuture;
                         await box.delete(widget.task!.id);
 
-                        logger.d('Значение бокса удалено ${box.values.toList()}');
+                        TaskLogger().logDebug(
+                            'Значение бокса удалено ${box.values.toList()}');
 
                         Navigator.pop(context);
                       },
@@ -226,7 +235,7 @@ class AddEditTaskScreenState extends ConsumerState<AddEditTaskScreen> {
                         Icons.delete,
                         color: colors.error,
                       ),
-                      label: Text('Удалить',
+                      label: Text(S.of(context).delete,
                           style: textStyle.bodyMedium?.copyWith(
                             color: colors.error,
                           )),
