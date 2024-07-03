@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:todo_list_yandex/features/tasks/presentation/screens/add_edit_task_screen.dart';
+import 'package:todo_list_yandex/generated/l10n.dart';
 import 'package:todo_list_yandex/logger/logger.dart';
 import 'package:todo_list_yandex/utils/utils.dart';
 
@@ -13,14 +14,15 @@ class AddTaskButtonNew extends StatelessWidget {
       padding: const EdgeInsets.only(right: 250.0),
       child: TextButton(
         onPressed: () {
-          logger.d('Нажата кнопка - переход к экрану добавления и редактирования задачи');
+          TaskLogger().logDebug(
+              'Нажата кнопка - переход к экрану добавления и редактирования задачи');
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const AddEditTaskScreen()),
           );
         },
         child: Text(
-          'Новое',
+          S.of(context).newT,
           style: textStyle.bodySmall,
         ),
       ),

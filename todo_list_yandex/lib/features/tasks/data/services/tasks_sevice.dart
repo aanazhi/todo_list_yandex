@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:dio/io.dart';
+import 'package:hive/hive.dart';
 import 'package:todo_list_yandex/features/tasks/data/models/task_model.dart';
 import 'package:dio/dio.dart';
 import 'package:todo_list_yandex/logger/logger.dart';
@@ -31,15 +32,21 @@ class TasksService {
 
       if (response.statusCode == 200) {
         final data = response.data;
-        logger.d('Ответ от сервера: $data');
+        TaskLogger().logDebug('Ответ от сервера: $data');
 
         if (data is Map<String, dynamic> && data['list'] is List<dynamic>) {
           final List<dynamic> list = data['list'];
           revision = response.data['revision'];
-          logger.d('Обновленная ревизия: $revision');
-          return list
+          TaskLogger().logDebug('Обновленная ревизия: $revision');
+          final tasks = list
               .map((item) => Task.fromJson(item as Map<String, dynamic>))
               .toList();
+          final box = await Hive.openBox<Task>('my_tasks_box1');
+          await box.clear();
+          for (var task in tasks) {
+            await box.put(task.id, task);
+          }
+          return tasks;
         } else {
           throw Exception('Некорректный формат данных');
         }
@@ -57,7 +64,8 @@ class TasksService {
         'element': task.toJson(),
       };
 
-      logger.d('Запрос на добавление задачи: ${jsonEncode(requestData)}');
+      TaskLogger()
+          .logDebug('Запрос на добавление задачи: ${jsonEncode(requestData)}');
 
       final response = await dio.post(
         '/list',
@@ -69,11 +77,11 @@ class TasksService {
         ),
       );
 
-      logger.d('Ответ сервера: ${response.data}');
+      TaskLogger().logDebug('Ответ сервера: ${response.data}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         revision = response.data['revision'];
-        logger.d('Обновленная ревизия: $revision');
+        TaskLogger().logDebug('Обновленная ревизия: $revision');
         final List<Task> currentTasks = await getAllTasks();
         currentTasks.add(task);
 
@@ -82,7 +90,7 @@ class TasksService {
         throw Exception('Ошибка при добавлении задачи: ${response.statusCode}');
       }
     } catch (e) {
-      logger.e('Ошибка при добавлении задачи: $e');
+      TaskLogger().logError('Ошибка при добавлении задачи: $e');
       throw Exception('Ошибка при добавлении задачи: $e');
     }
   }
@@ -102,11 +110,13 @@ class TasksService {
         ),
       );
 
-      logger.d('Ответ сервера на удаление задачи: ${response.data}');
+      TaskLogger()
+          .logDebug('Ответ сервера на удаление задачи: ${response.data}');
 
       if (response.statusCode == 200) {
         revision = response.data['revision'];
-        logger.d('Обновленная ревизия после удаления задачи: $revision');
+        TaskLogger()
+            .logDebug('Обновленная ревизия после удаления задачи: $revision');
         final List<Task> currentTasks = await getAllTasks();
         currentTasks.removeWhere((task) => task.id == taskId);
 
@@ -116,7 +126,7 @@ class TasksService {
         throw Exception('Ошибка при удалении задачи: ${response.statusCode}');
       }
     } catch (e) {
-      logger.e('Ошибка при удалении задачи: $e');
+      TaskLogger().logError('Ошибка при удалении задачи: $e');
       throw Exception('Ошибка при удалении задачи: $e');
     }
   }
@@ -129,18 +139,19 @@ class TasksService {
 
       final taskID = task.id.replaceAll(RegExp(r'[\[\]#]'), '');
 
-      logger.d('Запрос на редактирование задачи: ${jsonEncode(requestData)}');
+      TaskLogger().logDebug(
+          'Запрос на редактирование задачи: ${jsonEncode(requestData)}');
 
       final response = await dio.put(
         '/list/$taskID',
         data: requestData,
       );
 
-      logger.d('Ответ сервера: ${response.data}');
+      TaskLogger().logDebug('Ответ сервера: ${response.data}');
 
       if (response.statusCode == 200) {
         revision = response.data['revision'];
-        logger.d('Обновленная ревизия: $revision');
+        TaskLogger().logDebug('Обновленная ревизия: $revision');
         final List<Task> currentTasks = await getAllTasks();
 
         final int index = currentTasks.indexWhere((t) => t.id == task.id);
@@ -155,11 +166,13 @@ class TasksService {
             'Ошибка при редактировании задачи: ${response.statusCode}');
       }
     } on DioException catch (e) {
-      logger.e('Ошибка при редактировании задачи (DioException): $e');
+      TaskLogger()
+          .logError('Ошибка при редактировании задачи (DioException): $e');
       if (e.response != null) {
-        logger.e('Response data: ${e.response?.data}');
-        logger.e('Response headers: ${e.response?.headers}');
-        logger.e('Response status code: ${e.response?.statusCode}');
+        TaskLogger().logError('Response data: ${e.response?.data}');
+        TaskLogger().logError('Response headers: ${e.response?.headers}');
+        TaskLogger()
+            .logError('Response status code: ${e.response?.statusCode}');
 
         if (e.response?.statusCode == 400 &&
             e.response?.data == 'unsynchronized data') {
@@ -183,12 +196,12 @@ class TasksService {
 
       if (response.statusCode == 200) {
         final data = response.data;
-        logger.d('Ответ от сервера: $data');
+        TaskLogger().logDebug('Ответ от сервера: $data');
 
         if (data is Map<String, dynamic> && data['list'] is List<dynamic>) {
           final List<dynamic> list = data['list'];
           revision = response.data['revision'];
-          logger.d('Обновленная ревизия: $revision');
+          TaskLogger().logDebug('Обновленная ревизия: $revision');
           return list
               .map((item) => Task.fromJson(item as Map<String, dynamic>))
               .toList();
@@ -199,8 +212,13 @@ class TasksService {
         throw Exception('Ошибка при обновлении задач: ${response.statusCode}');
       }
     } catch (e) {
-      logger.d('Ошибка при выполнении запроса: $e');
+      TaskLogger().logDebug('Ошибка при выполнении запроса: $e');
       throw Exception('Ошибка при выполнении запроса: $e');
     }
+  }
+
+  Future<List<Task>> getTasksFromLocalStorage() async {
+    final box = await Hive.openBox<Task>('my_tasks_box1');
+    return box.values.toList();
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:todo_list_yandex/features/tasks/data/providers/tasks_provider.dart';
+import 'package:todo_list_yandex/generated/l10n.dart';
 import 'package:todo_list_yandex/utils/extensions.dart';
 
 class TaskNameInput extends ConsumerWidget {
@@ -19,7 +20,7 @@ class TaskNameInput extends ConsumerWidget {
         controller: controller,
         maxLines: null,
         decoration: InputDecoration(
-          labelText: 'Что нужно сделать...',
+          labelText: S.of(context).wINTD,
           labelStyle: textStyle.bodyMedium,
           border: const OutlineInputBorder(),
           filled: true,
