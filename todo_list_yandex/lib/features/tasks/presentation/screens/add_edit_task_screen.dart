@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive/hive.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
+
 import 'package:todo_list_yandex/generated/l10n.dart';
 
 import 'package:todo_list_yandex/utils/device/device_id.dart';
@@ -22,15 +24,12 @@ class AddEditTaskScreen extends ConsumerStatefulWidget {
 
 class AddEditTaskScreenState extends ConsumerState<AddEditTaskScreen> {
   late TextEditingController taskNameController;
-  late Future<Box<Task>> boxFuture;
 
   @override
   void initState() {
     super.initState();
     TaskLogger().logDebug('Initializing state');
     final task = widget.task;
-
-    boxFuture = Hive.openBox<Task>('my_tasks_box1');
 
     if (task != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -70,7 +69,7 @@ class AddEditTaskScreenState extends ConsumerState<AddEditTaskScreen> {
           color: colors.onSecondary,
           icon: const Icon(Icons.close),
           onPressed: () {
-            Navigator.pop(context);
+            context.go('/');
           },
         ),
         actions: [
@@ -80,9 +79,10 @@ class AddEditTaskScreenState extends ConsumerState<AddEditTaskScreen> {
                   .logDebug('Нажата кнопка - добавление или обновление задачи');
 
               final deviceId = await getDeviceId();
+              const uuid = Uuid();
 
               final newTask = Task(
-                id: widget.task?.id ?? UniqueKey().toString(),
+                id: widget.task?.id ?? uuid.v4(),
                 text: taskNameController.text,
                 done: widget.task?.done ?? false,
                 deadline: deadline,
@@ -92,21 +92,13 @@ class AddEditTaskScreenState extends ConsumerState<AddEditTaskScreen> {
                 lastUpdatedBy: deviceId,
               );
 
-              try {
-                final box = await boxFuture;
-                await box.put(newTask.id, newTask);
-                TaskLogger().logDebug('box.values - ${box.values}');
-              } catch (e) {
-                TaskLogger().logDebug('Ошибка при сохранении задачи в Hive $e');
-              }
-
               if (widget.task != null) {
                 ref.read(tasksProvider.notifier).updateTask(newTask);
               } else {
                 ref.read(tasksProvider.notifier).addTask(newTask);
               }
 
-              Navigator.pop(context);
+              context.go('/');
             },
             child: Text(S.of(context).save),
           ),
@@ -223,13 +215,7 @@ class AddEditTaskScreenState extends ConsumerState<AddEditTaskScreen> {
                             .read(tasksProvider.notifier)
                             .deleteTask(widget.task!);
 
-                        final box = await boxFuture;
-                        await box.delete(widget.task!.id);
-
-                        TaskLogger().logDebug(
-                            'Значение бокса удалено ${box.values.toList()}');
-
-                        Navigator.pop(context);
+                        context.pop();
                       },
                       icon: Icon(
                         Icons.delete,

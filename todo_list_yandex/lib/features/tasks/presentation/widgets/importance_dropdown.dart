@@ -33,9 +33,9 @@ class ImportanceDropdown extends ConsumerWidget {
                 ));
           }).toList(),
           onChanged: (value) {
-            logger.d('The value has been changed to: $value');
+            TaskLogger().logDebug('The value has been changed to: $value');
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              logger.d('Setting the value to the provider');
+              TaskLogger().logDebug('Setting the value to the provider');
               ref.read(importanceProvider.notifier).state = value!;
             });
           },
