@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:todo_list_yandex/features/tasks/data/models/task_model.dart';
 import 'package:todo_list_yandex/features/tasks/data/providers/tasks_provider.dart';
 import 'package:todo_list_yandex/features/tasks/presentation/screens/add_edit_task_screen.dart';
@@ -26,11 +27,8 @@ class AddTaskButtonPlus extends ConsumerWidget {
           ref.read(importanceProvider.notifier).state = 'basic';
           ref.read(dueDateProvider.notifier).state = null;
           ref.read(isDueDateEnabledProvider.notifier).state = false;
-          final result = await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const AddEditTaskScreen()),
-          );
-          if (result != null && result is Task) {
+          final result = await context.push<Task>('/addtask');
+          if (result != null) {
             ref.read(tasksProvider.notifier).addTask(result);
           }
         },

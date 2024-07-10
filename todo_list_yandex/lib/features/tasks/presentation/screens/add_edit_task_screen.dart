@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive/hive.dart';
+
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
+
 import 'package:todo_list_yandex/generated/l10n.dart';
 
 import 'package:todo_list_yandex/utils/device/device_id.dart';
@@ -70,7 +73,7 @@ class AddEditTaskScreenState extends ConsumerState<AddEditTaskScreen> {
           color: colors.onSecondary,
           icon: const Icon(Icons.close),
           onPressed: () {
-            Navigator.pop(context);
+            context.go('/');
           },
         ),
         actions: [
@@ -81,8 +84,10 @@ class AddEditTaskScreenState extends ConsumerState<AddEditTaskScreen> {
 
               final deviceId = await getDeviceId();
 
+              const uuid = Uuid();
+
               final newTask = Task(
-                id: widget.task?.id ?? UniqueKey().toString(),
+                id: widget.task?.id ?? uuid.v4(),
                 text: taskNameController.text,
                 done: widget.task?.done ?? false,
                 deadline: deadline,
@@ -106,7 +111,8 @@ class AddEditTaskScreenState extends ConsumerState<AddEditTaskScreen> {
                 ref.read(tasksProvider.notifier).addTask(newTask);
               }
 
-              Navigator.pop(context);
+
+              context.go('/');
             },
             child: Text(S.of(context).save),
           ),
@@ -223,13 +229,8 @@ class AddEditTaskScreenState extends ConsumerState<AddEditTaskScreen> {
                             .read(tasksProvider.notifier)
                             .deleteTask(widget.task!);
 
-                        final box = await boxFuture;
-                        await box.delete(widget.task!.id);
 
-                        TaskLogger().logDebug(
-                            'Значение бокса удалено ${box.values.toList()}');
-
-                        Navigator.pop(context);
+                        context.pop();
                       },
                       icon: Icon(
                         Icons.delete,

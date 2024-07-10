@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:todo_list_yandex/features/tasks/data/models/task_model.dart';
 import 'package:todo_list_yandex/features/tasks/data/providers/tasks_provider.dart';
@@ -79,13 +80,13 @@ class TaskCard extends ConsumerWidget {
           trailing: IconButton(
             onPressed: () async {
               TaskLogger().logDebug('Нажата кнопка для редактирования задачи');
-              final result = await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AddEditTaskScreen(task: task),
-                ),
+
+              final result = await context.push<Task>(
+                '/addtask',
+                extra: task,
               );
-              if (result != null && result is Task) {
+              if (result != null) {
+
                 TaskLogger().logDebug(
                     'Результат будет получен на экране редактирования задачи');
                 ref.read(tasksProvider.notifier).updateTask(result);

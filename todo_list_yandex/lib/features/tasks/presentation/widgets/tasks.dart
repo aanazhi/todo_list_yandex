@@ -120,7 +120,7 @@ class TasksState extends ConsumerState<Tasks> {
                     confirmDismiss: (direction) async {
                       TaskLogger().logDebug('Направление свайпа: $direction');
                       if (direction == DismissDirection.startToEnd) {
-                        return false;
+                        return !task.done;
                       } else if (direction == DismissDirection.endToStart) {
                         return true;
                       }
