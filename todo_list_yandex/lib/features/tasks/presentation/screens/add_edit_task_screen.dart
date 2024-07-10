@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
@@ -24,12 +25,15 @@ class AddEditTaskScreen extends ConsumerStatefulWidget {
 
 class AddEditTaskScreenState extends ConsumerState<AddEditTaskScreen> {
   late TextEditingController taskNameController;
+  late Future<Box<Task>> boxFuture;
 
   @override
   void initState() {
     super.initState();
     TaskLogger().logDebug('Initializing state');
     final task = widget.task;
+
+    boxFuture = Hive.openBox<Task>('my_tasks_box1');
 
     if (task != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -79,6 +83,7 @@ class AddEditTaskScreenState extends ConsumerState<AddEditTaskScreen> {
                   .logDebug('Нажата кнопка - добавление или обновление задачи');
 
               final deviceId = await getDeviceId();
+
               const uuid = Uuid();
 
               final newTask = Task(
@@ -92,11 +97,20 @@ class AddEditTaskScreenState extends ConsumerState<AddEditTaskScreen> {
                 lastUpdatedBy: deviceId,
               );
 
+              try {
+                final box = await boxFuture;
+                await box.put(newTask.id, newTask);
+                TaskLogger().logDebug('box.values - ${box.values}');
+              } catch (e) {
+                TaskLogger().logDebug('Ошибка при сохранении задачи в Hive $e');
+              }
+
               if (widget.task != null) {
                 ref.read(tasksProvider.notifier).updateTask(newTask);
               } else {
                 ref.read(tasksProvider.notifier).addTask(newTask);
               }
+
 
               context.go('/');
             },
@@ -214,6 +228,7 @@ class AddEditTaskScreenState extends ConsumerState<AddEditTaskScreen> {
                         ref
                             .read(tasksProvider.notifier)
                             .deleteTask(widget.task!);
+
 
                         context.pop();
                       },

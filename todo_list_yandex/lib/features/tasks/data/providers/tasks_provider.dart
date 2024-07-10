@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:todo_list_yandex/features/tasks/application/tasks_notifier.dart';
 import 'package:todo_list_yandex/features/tasks/data/models/task_model.dart';
+
 import 'package:todo_list_yandex/features/tasks/data/services/hive_service.dart';
 import 'package:todo_list_yandex/features/tasks/data/services/tasks_sevice.dart';
 import 'package:todo_list_yandex/logger/logger.dart';
@@ -11,6 +12,7 @@ final hiveServiceProvider = Provider<HiveService>((ref) {
   final taskLogger = ref.watch(taskLoggerProvider);
   return HiveService(taskLogger);
 });
+
 
 final dioProvider = Provider<Dio>((ref) {
   final dio = Dio(
@@ -24,6 +26,7 @@ final dioProvider = Provider<Dio>((ref) {
 
   return dio;
 });
+
 
 final taskLoggerProvider = Provider<TaskLogger>((ref) {
   return TaskLogger();
@@ -39,11 +42,13 @@ final tasksServiceProvider = Provider<TasksService>((ref) {
   final connectivity = ref.watch(connectivityProvider);
   return TasksService(
       dio: dio, hiveService: hiveService, connectivity: connectivity);
+
 });
 
 final tasksProvider =
     StateNotifierProvider<TasksNotifier, AsyncValue<List<Task>>>((ref) {
   final tasksService = ref.watch(tasksServiceProvider);
+
   final connectivity = ref.watch(connectivityProvider);
   return TasksNotifier(tasksService, connectivity);
 });

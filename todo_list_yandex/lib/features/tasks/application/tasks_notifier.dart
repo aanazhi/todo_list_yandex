@@ -7,6 +7,7 @@ import 'package:todo_list_yandex/logger/logger.dart';
 
 class TasksNotifier extends StateNotifier<AsyncValue<List<Task>>> {
   final TasksService tasksService;
+
   final Connectivity connectivity;
   StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
 
@@ -14,6 +15,7 @@ class TasksNotifier extends StateNotifier<AsyncValue<List<Task>>> {
       : super(const AsyncValue.loading()) {
     _init();
     _listenToConnectivityChanges();
+
   }
 
   Future<void> _init() async {

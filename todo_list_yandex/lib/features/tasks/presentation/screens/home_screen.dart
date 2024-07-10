@@ -18,7 +18,9 @@ class HomeScreen extends ConsumerWidget {
     final deviceSize = MediaQuery.of(context).size;
     final isVisible = ref.watch(taskVisibilityProvider);
     final tasksAsyncValue = ref.watch(tasksProvider);
+
     final tasksService = ref.watch(tasksServiceProvider);
+
 
     return Scaffold(
       backgroundColor: colors.onPrimary,

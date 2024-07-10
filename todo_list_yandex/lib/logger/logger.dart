@@ -7,8 +7,10 @@ class TaskLogger {
     logger.i(message);
   }
 
+
   void logError(String message, StackTrace stackTrace) {
     logger.e('$message ; StackTrace - $stackTrace');
+
   }
 
   void logDebug(String message) {

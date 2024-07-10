@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:todo_list_yandex/features/tasks/data/models/task_model.dart';
 import 'package:dio/dio.dart';
@@ -9,6 +8,7 @@ import 'package:todo_list_yandex/logger/logger.dart';
 
 class TasksService {
   final Dio dio;
+
   final HiveService hiveService;
   final Connectivity connectivity;
 
@@ -20,11 +20,13 @@ class TasksService {
     required this.connectivity,
   }) {
     dio.options.baseUrl = 'https://hive.mrdekk.ru/todo/';
+
     dio.interceptors.add(InterceptorsWrapper(onRequest: (options, handler) {
       options.headers['Authorization'] = 'Bearer Ailinel';
       options.headers['X-Last-Known-Revision'] = revision.toString();
       return handler.next(options);
     }));
+
 
     // (dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
     //   final client = HttpClient();
@@ -95,10 +97,12 @@ class TasksService {
       }
     } else {
       return await getTasksFromLocalStorage();
+
     }
   }
 
   Future<void> addTask(Task task) async {
+
     if (await isConnected()) {
       try {
         final requestData = {'element': task.toJson()};
@@ -200,10 +204,12 @@ class TasksService {
         changedAt: DateTime.now(),
         lastUpdatedBy: '',
       );
+
     }
   }
 
   Future<Task> editTask(Task task) async {
+
     if (await isConnected()) {
       try {
         final requestData = {
@@ -275,6 +281,7 @@ class TasksService {
   }
 
   Future<List<Task>> updateTasks(List<Task> tasks) async {
+
     if (await isConnected()) {
       try {
         final List<Map<String, dynamic>> tasksJson =
@@ -353,5 +360,6 @@ class TasksService {
             .logError('Ошибка синхронизации с сервером: $e', stackTrace);
       }
     }
+
   }
 }

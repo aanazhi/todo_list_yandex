@@ -80,11 +80,13 @@ class TaskCard extends ConsumerWidget {
           trailing: IconButton(
             onPressed: () async {
               TaskLogger().logDebug('Нажата кнопка для редактирования задачи');
+
               final result = await context.push<Task>(
                 '/addtask',
                 extra: task,
               );
               if (result != null) {
+
                 TaskLogger().logDebug(
                     'Результат будет получен на экране редактирования задачи');
                 ref.read(tasksProvider.notifier).updateTask(result);
