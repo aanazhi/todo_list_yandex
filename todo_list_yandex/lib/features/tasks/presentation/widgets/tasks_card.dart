@@ -66,26 +66,25 @@ class TaskCard extends ConsumerWidget {
                 ),
             ],
           ),
-          leading: Checkbox(
-            value: task.done,
-            onChanged: (bool? value) {
-              if (value != null) {
-                final updatedTask = task.copyWith(done: value);
-                ref.read(tasksProvider.notifier).updateTask(updatedTask);
-              }
-            },
-            activeColor: Colors.green,
-            checkColor: colors.surface,
+          leading: Icon(
+            task.done ? Icons.check_box : Icons.crop_square_outlined,
+            color: task.done
+                ? Colors.green
+                : (task.importance == 'important'
+                    ? colors.error
+                    : colors.onError),
           ),
           trailing: IconButton(
             onPressed: () async {
-              TaskLogger().logDebug('Нажата кнопка для редактирования задачи');
-              final result = await context.push<Task>(
-                '/addtask',
-                extra: task,
+              logger.d('Нажата кнопка для редактирования задачи');
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AddEditTaskScreen(task: task),
+                ),
               );
-              if (result != null) {
-                TaskLogger().logDebug(
+              if (result != null && result is Task) {
+                logger.d(
                     'Результат будет получен на экране редактирования задачи');
                 ref.read(tasksProvider.notifier).updateTask(result);
               }

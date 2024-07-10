@@ -41,11 +41,8 @@ final tasksServiceProvider = Provider<TasksService>((ref) {
       dio: dio, hiveService: hiveService, connectivity: connectivity);
 });
 
-final tasksProvider =
-    StateNotifierProvider<TasksNotifier, AsyncValue<List<Task>>>((ref) {
-  final tasksService = ref.watch(tasksServiceProvider);
-  final connectivity = ref.watch(connectivityProvider);
-  return TasksNotifier(tasksService, connectivity);
+final tasksProvider = StateNotifierProvider<TasksNotifier, List<Task>>((ref) {
+  return TasksNotifier(ref.watch(tasksServiceProvider));
 });
 
 final taskNameProvider = StateProvider<String>((ref) => '');

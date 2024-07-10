@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:todo_list_yandex/features/tasks/data/models/task_model.dart';
 import 'package:todo_list_yandex/features/tasks/data/providers/tasks_provider.dart';
 import 'package:todo_list_yandex/features/tasks/presentation/screens/add_edit_task_screen.dart';
-import 'package:todo_list_yandex/generated/l10n.dart';
 import 'package:todo_list_yandex/logger/logger.dart';
 import 'package:todo_list_yandex/utils/utils.dart';
 
@@ -17,20 +16,15 @@ class AddTaskButtonNew extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.only(right: 250.0),
       child: TextButton(
-        onPressed: () async {
-          TaskLogger().logDebug(
-              'Очистка состояния задачи перед переходом к экрану добавления и редактирования задачи');
-          ref.read(taskNameProvider.notifier).state = '';
-          ref.read(importanceProvider.notifier).state = 'basic';
-          ref.read(dueDateProvider.notifier).state = null;
-          ref.read(isDueDateEnabledProvider.notifier).state = false;
-          final result = await context.push<Task>('/addtask');
-          if (result != null) {
-            ref.read(tasksProvider.notifier).addTask(result);
-          }
+        onPressed: () {
+          logger.d('Нажата кнопка - переход к экрану добавления и редактирования задачи');
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddEditTaskScreen()),
+          );
         },
         child: Text(
-          S.of(context).newT,
+          'Новое',
           style: textStyle.bodySmall,
         ),
       ),

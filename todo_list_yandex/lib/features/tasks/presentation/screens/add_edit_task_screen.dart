@@ -2,11 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:uuid/uuid.dart';
-
-import 'package:todo_list_yandex/generated/l10n.dart';
-
-import 'package:todo_list_yandex/utils/device/device_id.dart';
+import 'package:todo_list_yandex/features/tasks/data/device/device_id.dart';
 import 'package:todo_list_yandex/features/tasks/data/models/task_model.dart';
 import 'package:todo_list_yandex/features/tasks/data/providers/tasks_provider.dart';
 import 'package:todo_list_yandex/features/tasks/presentation/widgets/task_name_input.dart';
@@ -28,8 +24,10 @@ class AddEditTaskScreenState extends ConsumerState<AddEditTaskScreen> {
   @override
   void initState() {
     super.initState();
-    TaskLogger().logDebug('Initializing state');
+    logger.d('Initializing state');
     final task = widget.task;
+
+    boxFuture = Hive.openBox<Task>('taskBox');
 
     if (task != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -47,7 +45,7 @@ class AddEditTaskScreenState extends ConsumerState<AddEditTaskScreen> {
 
   @override
   void dispose() {
-    TaskLogger().logDebug('Disposing state');
+    logger.d('Disposing state');
     taskNameController.dispose();
     super.dispose();
   }
@@ -75,8 +73,7 @@ class AddEditTaskScreenState extends ConsumerState<AddEditTaskScreen> {
         actions: [
           TextButton(
             onPressed: () async {
-              TaskLogger()
-                  .logDebug('Нажата кнопка - добавление или обновление задачи');
+              logger.d('Нажата кнопка - добавление или обновление задачи');
 
               final deviceId = await getDeviceId();
               const uuid = Uuid();
@@ -92,6 +89,10 @@ class AddEditTaskScreenState extends ConsumerState<AddEditTaskScreen> {
                 lastUpdatedBy: deviceId,
               );
 
+              final box = await boxFuture;
+              await box.put(newTask.id, newTask);
+              logger.d('Значения бокса ${box.values.toList()}');
+
               if (widget.task != null) {
                 ref.read(tasksProvider.notifier).updateTask(newTask);
               } else {
@@ -100,7 +101,7 @@ class AddEditTaskScreenState extends ConsumerState<AddEditTaskScreen> {
 
               context.go('/');
             },
-            child: Text(S.of(context).save),
+            child: const Text('СОХРАНИТЬ'),
           ),
         ],
       ),
@@ -126,9 +127,9 @@ class AddEditTaskScreenState extends ConsumerState<AddEditTaskScreen> {
                       border: const OutlineInputBorder(),
                     ),
                     items: [
-                      {'display': S.of(context).no, 'value': 'basic'},
-                      {'display': S.of(context).low, 'value': 'low'},
-                      {'display': S.of(context).high, 'value': 'important'}
+                      {'display': 'Нет', 'value': 'basic'},
+                      {'display': 'Низкий', 'value': 'low'},
+                      {'display': '!! Высокий', 'value': 'important'}
                     ].map((importanceItem) {
                       return DropdownMenuItem<String>(
                         value: importanceItem['value'],
@@ -157,7 +158,7 @@ class AddEditTaskScreenState extends ConsumerState<AddEditTaskScreen> {
                   children: [
                     SwitchListTile(
                       title: Text(
-                        S.of(context).due_date,
+                        'Сделать до',
                         style: textStyle.bodyMedium,
                       ),
                       value: isDueDateEnabled,
@@ -176,7 +177,7 @@ class AddEditTaskScreenState extends ConsumerState<AddEditTaskScreen> {
                       ListTile(
                         title: Text(
                           deadline == null
-                              ? S.of(context).choose_date
+                              ? 'Выберите дату'
                               : DateFormat('dd MMMM').format(deadline),
                           style: textStyle.bodyMedium?.copyWith(),
                         ),
@@ -185,7 +186,7 @@ class AddEditTaskScreenState extends ConsumerState<AddEditTaskScreen> {
                           color: colors.onSecondary,
                         ),
                         onTap: () async {
-                          TaskLogger().logDebug('Выбор даты нажат');
+                          logger.d('Выбор даты нажат');
                           final DateTime? pickedDate = await showDatePicker(
                             context: context,
                             initialDate: DateTime.now(),
@@ -209,19 +210,23 @@ class AddEditTaskScreenState extends ConsumerState<AddEditTaskScreen> {
                   children: [
                     TextButton.icon(
                       onPressed: () async {
-                        TaskLogger()
-                            .logDebug('Нажата кнопка - удаление задачи');
+                        logger.d('Нажата кнопка - удаление задачи');
                         ref
                             .read(tasksProvider.notifier)
                             .deleteTask(widget.task!);
 
-                        context.pop();
+                        final box = await boxFuture;
+                        await box.delete(widget.task!.id);
+
+                        logger.d('Значение бокса удалено ${box.values.toList()}');
+
+                        Navigator.pop(context);
                       },
                       icon: Icon(
                         Icons.delete,
                         color: colors.error,
                       ),
-                      label: Text(S.of(context).delete,
+                      label: Text('Удалить',
                           style: textStyle.bodyMedium?.copyWith(
                             color: colors.error,
                           )),
