@@ -49,14 +49,14 @@
 ## Tests
 - Unit-тесты реализованы для сущностей HiveService и TasksService.
 - Реализован интеграционный тест для добавления нового дела, команда для запуска: 
-  
+```  
   flutter test integration_test/app_test.dart
-  
+```  
 ## Deeplinks
 - Поддержан диплинк, открывающий экран добавления нового дела. Команда:
-  
+```
   adb shell am start -a android.intent.action.VIEW -d "myapp://addtask"
-  
+```  
 - Диплинк открывается даже если приложение было убито.
 - Слой навигации переписан на Navigator 2.0.
 
