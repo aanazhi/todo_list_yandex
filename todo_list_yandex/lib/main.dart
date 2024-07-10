@@ -50,10 +50,8 @@ class _TodoAppState extends State<TodoApp> {
       ],
     );
 
-    // Обработка начального намерения
     _handleInitialIntent();
 
-    // Установка обработчика для method channel
     platform.setMethodCallHandler((call) async {
       print('Received method call: ${call.method}');
       if (call.method == "handleUri") {
@@ -75,7 +73,7 @@ class _TodoAppState extends State<TodoApp> {
   }
 
   Future<void> _handleInitialIntent() async {
-    if (_initialIntentHandled) return; // Проверка на уже обработанное намерение
+    if (_initialIntentHandled) return;
 
     try {
       final String? uriString = await platform.invokeMethod('getInitialIntent');
