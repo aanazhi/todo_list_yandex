@@ -10,6 +10,8 @@
 
 ## Ссылка на загрузку APK
 [Ссылка на загрузку APK](https://drive.google.com/drive/folders/1hYPP6himZ4ATtqFptFuLJqauGp4bg3lD?usp=sharing)
+
+
 [Ссылка на релиз из гита](https://github.com/aanazhi/todo_list_yandex/releases/tag/v1.0.0)
 
 ## Экраны
