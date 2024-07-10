@@ -181,7 +181,6 @@ class TasksService {
 
           await updateTasks(currentTasks);
 
-          // Удаление задачи из локального хранилища
           await hiveService.deleteTask(taskId);
 
           return Task.fromJson(response.data);
@@ -245,7 +244,6 @@ class TasksService {
 
           await updateTasks(currentTasks);
 
-          // Сохранение обновленной задачи в локальное хранилище
           await hiveService.saveTask(task);
 
           return Task.fromJson(response.data);
@@ -303,7 +301,6 @@ class TasksService {
                 .map((item) => Task.fromJson(item as Map<String, dynamic>))
                 .toList();
 
-            // Сохранение задач в локальное хранилище
             await hiveService.clearBox();
             for (var task in updatedTasks) {
               await hiveService.saveTask(task);
@@ -322,7 +319,6 @@ class TasksService {
         throw Exception('Ошибка при выполнении запроса: $e');
       }
     } else {
-      // Сохраняем обновленные задачи в локальное хранилище для последующей синхронизации
       for (var task in tasks) {
         await hiveService.saveTask(task);
       }

@@ -15,9 +15,11 @@ void main() {
     await setUpTestHive();
   });
 
+
   tearDown(() async {
     await Hive.box<Task>('tasksBox').clear();
   });
+
 
   testWidgets('Добавление новой задачи', (WidgetTester tester) async {
     await tester.pumpWidget(ProviderScope(child: TodoApp()));

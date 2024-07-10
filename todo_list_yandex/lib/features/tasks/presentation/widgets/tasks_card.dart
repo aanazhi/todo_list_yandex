@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:todo_list_yandex/features/tasks/data/models/task_model.dart';
 import 'package:todo_list_yandex/features/tasks/data/providers/tasks_provider.dart';
-import 'package:todo_list_yandex/features/tasks/presentation/screens/add_edit_task_screen.dart';
+
 import 'package:todo_list_yandex/logger/logger.dart';
 import 'package:todo_list_yandex/utils/extensions.dart';
 

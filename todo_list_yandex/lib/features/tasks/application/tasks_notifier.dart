@@ -18,6 +18,7 @@ class TasksNotifier extends StateNotifier<AsyncValue<List<Task>>> {
 
   }
 
+
   Future<void> _init() async {
     try {
       TaskLogger().logDebug('Инициализация задач...');
@@ -26,7 +27,6 @@ class TasksNotifier extends StateNotifier<AsyncValue<List<Task>>> {
       TaskLogger().logDebug(
           'Задачи успешно загружены из локального хранилища: ${tasks.length}');
 
-      // Попытка загрузки задач с сервера
       if (await _isConnected()) {
         await _syncTasks();
       }

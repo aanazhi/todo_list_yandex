@@ -50,18 +50,13 @@ class _TodoAppState extends State<TodoApp> {
       ],
     );
 
-    // Обработка начального намерения
     _handleInitialIntent();
 
-    // Установка обработчика для method channel
     platform.setMethodCallHandler((call) async {
-      print('Received method call: ${call.method}');
       if (call.method == "handleUri") {
         final uri = Uri.tryParse(call.arguments);
-        print('Received handleUri method call with URI: ${call.arguments}');
+
         if (uri != null) {
-          print('Scheme: ${uri.scheme}');
-          print('Host: ${uri.host}');
           if (uri.scheme == 'myapp' && uri.host == 'addtask') {
             if (mounted) {
               setState(() {
@@ -75,11 +70,11 @@ class _TodoAppState extends State<TodoApp> {
   }
 
   Future<void> _handleInitialIntent() async {
-    if (_initialIntentHandled) return; // Проверка на уже обработанное намерение
+    if (_initialIntentHandled) return;
 
     try {
       final String? uriString = await platform.invokeMethod('getInitialIntent');
-      print('Initial intent URI: $uriString');
+
       if (uriString != null) {
         final uri = Uri.tryParse(uriString);
         if (uri != null && uri.scheme == 'myapp' && uri.host == 'addtask') {
@@ -91,7 +86,7 @@ class _TodoAppState extends State<TodoApp> {
         }
       }
     } on PlatformException catch (e) {
-      print("Failed to get initial intent: '${e.message}'.");
+      TaskLogger().logDebug("Failed to get initial intent: '${e.message}'.");
     } finally {
       _initialIntentHandled = true;
     }
