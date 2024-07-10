@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:todo_list_yandex/features/tasks/data/models/task_model.dart';
 import 'package:todo_list_yandex/features/tasks/data/providers/tasks_provider.dart';
-import 'package:todo_list_yandex/features/tasks/presentation/screens/add_edit_task_screen.dart';
+
 import 'package:todo_list_yandex/logger/logger.dart';
 import 'package:todo_list_yandex/utils/extensions.dart';
 
@@ -66,25 +66,26 @@ class TaskCard extends ConsumerWidget {
                 ),
             ],
           ),
-          leading: Icon(
-            task.done ? Icons.check_box : Icons.crop_square_outlined,
-            color: task.done
-                ? Colors.green
-                : (task.importance == 'important'
-                    ? colors.error
-                    : colors.onError),
+          leading: Checkbox(
+            value: task.done,
+            onChanged: (bool? value) {
+              if (value != null) {
+                final updatedTask = task.copyWith(done: value);
+                ref.read(tasksProvider.notifier).updateTask(updatedTask);
+              }
+            },
+            activeColor: Colors.green,
+            checkColor: colors.surface,
           ),
           trailing: IconButton(
             onPressed: () async {
-              logger.d('Нажата кнопка для редактирования задачи');
-              final result = await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AddEditTaskScreen(task: task),
-                ),
+              TaskLogger().logDebug('Нажата кнопка для редактирования задачи');
+              final result = await context.push<Task>(
+                '/addtask',
+                extra: task,
               );
-              if (result != null && result is Task) {
-                logger.d(
+              if (result != null) {
+                TaskLogger().logDebug(
                     'Результат будет получен на экране редактирования задачи');
                 ref.read(tasksProvider.notifier).updateTask(result);
               }
