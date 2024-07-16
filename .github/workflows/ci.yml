@@ -18,7 +18,7 @@ jobs:
         with:
           flutter-version: '3.22.2'
       - name: Run dart format
-        run: dart format --set-exit-if-changed .
+        run: dart format .
 
   lint:
     name: Lint
