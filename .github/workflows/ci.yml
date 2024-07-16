@@ -16,7 +16,7 @@ jobs:
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: 'stable'
+          flutter-version: '3.22.2'
       - name: Run flutter format
         run: flutter format --set-exit-if-changed .
 
@@ -29,7 +29,7 @@ jobs:
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: 'stable'
+          flutter-version: '3.22.2'
       - name: Run flutter analyze
         run: flutter analyze
 
@@ -42,7 +42,7 @@ jobs:
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: 'stable'
+          flutter-version: '3.22.2'
       - name: Run flutter test
         run: flutter test
 
@@ -55,7 +55,7 @@ jobs:
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: 'stable'
+          flutter-version: '3.22.2'
       - name: Build APK
         run: flutter build apk --release
 
@@ -69,7 +69,7 @@ jobs:
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: 'stable'
+          flutter-version: '3.22.2'
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
       - name: Deploy to Firebase App Distribution
