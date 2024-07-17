@@ -111,6 +111,7 @@
 - test для написания тестов.
 - hive_test для тестирования с использованием Hive.
 - mockito для создания моков в тестах.
+- - firebase_crashlytics, firebase_core, firebase_remote_config, firebase_analytics для работы с Firebase.
 
 ## Инструкции по запуску через .apk
 1. Скачайте APK файл приложения на ваше устройство.
