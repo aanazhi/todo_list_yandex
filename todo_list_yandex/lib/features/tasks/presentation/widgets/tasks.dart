@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:todo_list_yandex/features/tasks/data/models/task_model.dart';
 import 'package:todo_list_yandex/features/tasks/data/providers/tasks_provider.dart';
+import 'package:todo_list_yandex/features/tasks/data/services/analytics_service.dart';
 import 'package:todo_list_yandex/features/tasks/presentation/widgets/add_task_button_new.dart';
 import 'package:todo_list_yandex/features/tasks/presentation/widgets/tasks_card.dart';
 import 'package:todo_list_yandex/logger/logger.dart';
@@ -87,6 +88,7 @@ class TasksState extends ConsumerState<Tasks> {
                     onDismissed: (direction) async {
                       TaskLogger().logDebug('Направление свайпа: $direction');
                       if (direction == DismissDirection.startToEnd) {
+                        AnalyticsService.logTaskEvent('complete', task.id);
                         final updatedTask = task.copyWith(done: true);
                         await ref
                             .read(tasksProvider.notifier)
@@ -96,11 +98,12 @@ class TasksState extends ConsumerState<Tasks> {
                             backgroundColor: colors.secondary,
                             content: Text(
                               '${task.text} выполнена',
-                              style: TextStyle(color: colors.surface),
+                              style: TextStyle(color: colors.onSurface),
                             ),
                           ),
                         );
                       } else if (direction == DismissDirection.endToStart) {
+                        AnalyticsService.logTaskEvent('delete', task.id);
                         ref.read(tasksProvider.notifier).deleteTask(task);
                         final box = await boxFuture;
                         await box.delete(task.id);
@@ -110,7 +113,7 @@ class TasksState extends ConsumerState<Tasks> {
                             backgroundColor: colors.error,
                             content: Text(
                               '${task.text} удалена',
-                              style: TextStyle(color: colors.surface),
+                              style: TextStyle(color: colors.onSurface),
                             ),
                           ),
                         );

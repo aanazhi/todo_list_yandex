@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:todo_list_yandex/features/tasks/data/models/task_model.dart';
+import 'package:todo_list_yandex/features/tasks/data/providers/remote_configs_provider.dart';
 import 'package:todo_list_yandex/features/tasks/data/providers/tasks_provider.dart';
 
 import 'package:todo_list_yandex/logger/logger.dart';
@@ -17,6 +18,7 @@ class TaskCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.colorScheme;
     final textStyle = context.textTheme;
+    final importanceColor = ref.watch(colorStateProvider);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -36,7 +38,7 @@ class TaskCard extends ConsumerWidget {
                         text: '!! ',
                         style: textStyle.bodyMedium?.copyWith(
                           fontSize: 25,
-                          color: colors.error,
+                          color: importanceColor,
                         ),
                       ),
                     if (task.importance == 'low')
@@ -72,6 +74,15 @@ class TaskCard extends ConsumerWidget {
               if (value != null) {
                 final updatedTask = task.copyWith(done: value);
                 ref.read(tasksProvider.notifier).updateTask(updatedTask);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    backgroundColor: colors.secondary,
+                    content: Text(
+                      '${task.text} выполнена',
+                      style: TextStyle(color: colors.onSurface),
+                    ),
+                  ),
+                );
               }
             },
             activeColor: Colors.green,

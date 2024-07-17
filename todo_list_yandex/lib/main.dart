@@ -1,13 +1,13 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:todo_list_yandex/config/theme/app_theme.dart';
 import 'package:todo_list_yandex/features/tasks/data/models/task_model.dart';
-import 'package:todo_list_yandex/features/tasks/presentation/screens/add_edit_task_screen.dart';
-import 'package:todo_list_yandex/features/tasks/presentation/screens/home_screen.dart';
+import 'package:todo_list_yandex/features/tasks/data/router/app_router.dart';
 import 'package:todo_list_yandex/generated/l10n.dart';
 import 'package:todo_list_yandex/logger/logger.dart';
 
@@ -16,7 +16,16 @@ void main() async {
 
   await Hive.initFlutter();
   Hive.registerAdapter(TaskAdapter());
+  await Firebase.initializeApp();
 
+  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
+    DeviceOrientation.portraitDown,
+  ]);
   runApp(ProviderScope(child: TodoApp()));
 }
 
@@ -27,28 +36,14 @@ class TodoApp extends StatefulWidget {
 
 class _TodoAppState extends State<TodoApp> {
   static const platform = MethodChannel('com.example.todo_list_yandex/intent');
-  late final GoRouter _router;
+  late final AppRouter _appRouter;
   bool _initialIntentHandled = false;
 
   @override
   void initState() {
     super.initState();
 
-    _router = GoRouter(
-      routes: [
-        GoRoute(
-          path: '/',
-          builder: (context, state) => HomeScreen(),
-        ),
-        GoRoute(
-          path: '/addtask',
-          builder: (context, state) {
-            final task = state.extra as Task?;
-            return AddEditTaskScreen(task: task);
-          },
-        ),
-      ],
-    );
+    _appRouter = AppRouter();
 
     _handleInitialIntent();
 
@@ -60,7 +55,7 @@ class _TodoAppState extends State<TodoApp> {
           if (uri.scheme == 'myapp' && uri.host == 'addtask') {
             if (mounted) {
               setState(() {
-                _router.go('/addtask');
+                _appRouter.navigateToAddTask(context);
               });
             }
           }
@@ -80,7 +75,7 @@ class _TodoAppState extends State<TodoApp> {
         if (uri != null && uri.scheme == 'myapp' && uri.host == 'addtask') {
           if (mounted) {
             setState(() {
-              _router.go('/addtask');
+              _appRouter.navigateToAddTask(context);
             });
           }
         }
@@ -95,7 +90,7 @@ class _TodoAppState extends State<TodoApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      routerConfig: _router,
+      routerConfig: _appRouter.router,
       localizationsDelegates: const [
         S.delegate,
         GlobalMaterialLocalizations.delegate,
@@ -105,6 +100,8 @@ class _TodoAppState extends State<TodoApp> {
       supportedLocales: S.delegate.supportedLocales,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+      themeMode: ThemeMode.system,
     );
   }
 }

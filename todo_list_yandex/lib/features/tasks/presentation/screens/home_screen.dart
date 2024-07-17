@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:todo_list_yandex/features/tasks/data/providers/remote_configs_provider.dart';
 import 'package:todo_list_yandex/features/tasks/data/providers/tasks_provider.dart';
 import 'package:todo_list_yandex/features/tasks/presentation/widgets/add_task_button_plus.dart';
 import 'package:todo_list_yandex/features/tasks/presentation/widgets/my_sliver_app_bar.dart';
@@ -18,7 +19,7 @@ class HomeScreen extends ConsumerWidget {
     final deviceSize = MediaQuery.of(context).size;
     final isVisible = ref.watch(taskVisibilityProvider);
     final tasksAsyncValue = ref.watch(tasksProvider);
-    final tasksService = ref.watch(tasksServiceProvider);
+    final importanceColor = ref.watch(colorStateProvider);
 
     return Scaffold(
       backgroundColor: colors.onPrimary,
@@ -54,20 +55,33 @@ class HomeScreen extends ConsumerWidget {
                             const Spacer(),
                             Padding(
                               padding: const EdgeInsets.only(right: 40),
-                              child: IconButton(
-                                onPressed: () {
-                                  TaskLogger().logDebug(
-                                      'Нажата кнопка - переключение видимости задачи');
-                                  ref
-                                      .read(taskVisibilityProvider.notifier)
-                                      .state = !isVisible;
-                                },
-                                icon: Icon(
-                                  isVisible
-                                      ? Icons.visibility_off
-                                      : Icons.visibility,
-                                  color: colors.primary,
-                                ),
+                              child: Row(
+                                children: [
+                                  IconButton(
+                                    onPressed: () {
+                                      TaskLogger().logDebug(
+                                          'Нажата кнопка - переключение видимости задачи');
+                                      ref
+                                          .read(taskVisibilityProvider.notifier)
+                                          .state = !isVisible;
+                                    },
+                                    icon: Icon(
+                                      isVisible
+                                          ? Icons.visibility_off
+                                          : Icons.visibility,
+                                      color: colors.primary,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    onPressed: () => ref
+                                        .read(colorStateProvider.notifier)
+                                        .toggleColor(),
+                                    icon: Icon(
+                                      Icons.color_lens,
+                                      color: importanceColor,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],

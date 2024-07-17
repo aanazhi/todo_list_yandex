@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:todo_list_yandex/features/tasks/data/providers/remote_configs_provider.dart';
+import 'package:todo_list_yandex/features/tasks/data/services/analytics_service.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:todo_list_yandex/generated/l10n.dart';
@@ -56,7 +58,7 @@ class AddEditTaskScreenState extends ConsumerState<AddEditTaskScreen> {
   Widget build(BuildContext context) {
     final colors = context.colorScheme;
     final textStyle = context.textTheme;
-
+    final importanceColor = ref.watch(colorStateProvider);
     final importance = ref.watch(importanceProvider);
     final deadline = ref.watch(dueDateProvider);
     final isDueDateEnabled = ref.watch(isDueDateEnabledProvider);
@@ -94,8 +96,10 @@ class AddEditTaskScreenState extends ConsumerState<AddEditTaskScreen> {
 
               if (widget.task != null) {
                 ref.read(tasksProvider.notifier).updateTask(newTask);
+                AnalyticsService.logTaskEvent('update', newTask.id);
               } else {
                 ref.read(tasksProvider.notifier).addTask(newTask);
+                AnalyticsService.logTaskEvent('add', newTask.id);
               }
 
               context.go('/');
@@ -136,9 +140,9 @@ class AddEditTaskScreenState extends ConsumerState<AddEditTaskScreen> {
                           importanceItem['display']!,
                           style: importanceItem['value'] == 'important'
                               ? textStyle.bodyMedium
-                                  ?.copyWith(color: colors.error)
+                                  ?.copyWith(color: importanceColor)
                               : textStyle.bodyMedium
-                                  ?.copyWith(color: colors.onSurface),
+                                  ?.copyWith(color: colors.onSecondary),
                         ),
                       );
                     }).toList(),
@@ -211,6 +215,8 @@ class AddEditTaskScreenState extends ConsumerState<AddEditTaskScreen> {
                       onPressed: () async {
                         TaskLogger()
                             .logDebug('Нажата кнопка - удаление задачи');
+                        AnalyticsService.logTaskEvent(
+                            'delete', widget.task!.id);
                         ref
                             .read(tasksProvider.notifier)
                             .deleteTask(widget.task!);

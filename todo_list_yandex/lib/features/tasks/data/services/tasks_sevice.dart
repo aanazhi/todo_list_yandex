@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:todo_list_yandex/features/tasks/data/models/task_model.dart';
 import 'package:dio/dio.dart';
 import 'package:todo_list_yandex/features/tasks/data/services/hive_service.dart';
@@ -91,6 +92,7 @@ class TasksService {
           throw Exception('Ошибка при получении задач: ${response.statusCode}');
         }
       } catch (e) {
+        FirebaseCrashlytics.instance.crash();
         throw Exception('Ошибка при выполнении запроса: $e');
       }
     } else {
@@ -133,6 +135,7 @@ class TasksService {
         TaskLogger().logError(
             'SocketException при добавлении задачи: $socketError', stackTrace);
       } catch (e, stackTrace) {
+        FirebaseCrashlytics.instance.crash();
         TaskLogger().logError(
             'Неизвестная ошибка при добавлении задачи: $e', stackTrace);
       }
@@ -184,8 +187,8 @@ class TasksService {
           throw Exception('Ошибка при удалении задачи: ${response.statusCode}');
         }
       } catch (e, stackTrace) {
-        TaskLogger().logError('Ошибка при удалении задачи: $e', stackTrace);
-        throw Exception('Ошибка при удалении задачи: $e');
+        FirebaseCrashlytics.instance.crash();
+        throw Exception('Ошибка при удалении задачи: $e $stackTrace');
       }
     } else {
       await hiveService.deleteTask(taskId);
@@ -264,6 +267,7 @@ class TasksService {
         }
         throw Exception('Ошибка при редактировании задачи (DioException): $e');
       } catch (e) {
+        FirebaseCrashlytics.instance.crash();
         throw Exception('Неизвестная ошибка: $e');
       }
     } else {
@@ -308,7 +312,7 @@ class TasksService {
               'Ошибка при обновлении задач: ${response.statusCode}');
         }
       } catch (e) {
-        TaskLogger().logDebug('Ошибка при выполнении запроса: $e');
+        FirebaseCrashlytics.instance.crash();
         throw Exception('Ошибка при выполнении запроса: $e');
       }
     } else {
@@ -345,6 +349,7 @@ class TasksService {
           }
         }
       } catch (e, stackTrace) {
+        FirebaseCrashlytics.instance.crash();
         TaskLogger()
             .logError('Ошибка синхронизации с сервером: $e', stackTrace);
       }
